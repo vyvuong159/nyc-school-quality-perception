@@ -7,7 +7,7 @@
 <ul><li>Do student, parent and teacher perceptions of NYC school quality appear to be related to demographic and academic success metrics? </li>
 <li>Do students, parents, teachers have similar perceptions of NYC school quality? </li></p>
 
-<p> Tasks: 
+<p> Tasks: <br>
 <ul><li>Prepare data: identify missing values, reshape dataframe </li>
 <li>Conduct exploratory data analysis and visualization </li>
 <li>Determine possible relationships between variables </li></p>
