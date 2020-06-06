@@ -3,11 +3,11 @@
 
 <p> This project evaluates the relationship between perception of New York City school quality and academic performance and demographic characteristics.</p>
 
-<p> Research Questions: <br>
+<p><strong><em> Research Questions: </em></strong><br>
 <ul><li>Do student, parent and teacher perceptions of NYC school quality appear to be related to demographic and academic success metrics? </li>
 <li>Do students, parents, teachers have similar perceptions of NYC school quality? </li></p>
 
-<p> Tasks: <br>
+<p><strong><em> Tasks: </em></strong><br>
 <ul><li>Prepare data: identify missing values, reshape dataframe </li>
 <li>Conduct exploratory data analysis and visualization </li>
 <li>Determine possible relationships between variables </li></p>
