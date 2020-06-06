@@ -3,11 +3,14 @@ This project is an assignment of the Data Analysis training program by DataQuest
 
 This project evaluates the relationship between perception of New York City school quality and academic performance and demographic characteristics.
 
-## Research Questions:
+## Research Questions
 * Do student, parent and teacher perceptions of NYC school quality appear to be related to demographic and academic success metrics?
 * Do students, parents, teachers have similar perceptions of NYC school quality?
 
-## Tasks:
+## Tasks
 * Prepare data: identify missing values, reshape dataframe
 * Conduct exploratory data analysis and visualization
 * Determine possible relationships between variables
+
+## Data source
+[NYC Open Data] (https://data.cityofnewyork.us/Education/2011-NYC-School-Survey/mnz3-dyi8)
