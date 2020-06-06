@@ -1,4 +1,4 @@
-# nyc-school-quality-perception
+# Introduction
 This project is an assignment of the Data Analysis training program under DataQuest.io.
 
 This project evaluates the relationship between perception of New York City school quality and academic performance and demographic characteristics.
