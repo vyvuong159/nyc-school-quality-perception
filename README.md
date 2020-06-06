@@ -1,7 +1,7 @@
 # nyc-school-quality-perception
 <p> This project is an assignment of the Data Analysis training program under DataQuest.io.</p>
 
-<p> This #project# evaluates the relationship between perception of New York City school quality and academic performance and demographic characteristics.</p>
+<p> This project evaluates the relationship between perception of New York City school quality and academic performance and demographic characteristics.</p>
 
 <p><strong><em> Research Questions: </em></strong><br>
 <ul><li>Do student, parent and teacher perceptions of NYC school quality appear to be related to demographic and academic success metrics? </li>
