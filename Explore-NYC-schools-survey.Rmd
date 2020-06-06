@@ -1,0 +1,198 @@
+---
+title: 'Project: Exploring NYC schools survey data'
+author: "Vy Vuong"
+output:
+  html_document:
+    df_print: paged
+---
+<h3>Purpose: This project will analyze the data of parent, students, and teacher perceptions of quality of schools in New York City </h3>
+
+<h3> Research Questions: </h3>
+- Do student, parent and teacher perceptions of NYC school quality appear to be related to demographic and academic success metrics?
+- Do students, parents, teachers have similar perceptions of NYC school quality?
+
+<h3> Tasks: </h3>
+- Identify and impute missing values if possible
+- Identify and drop duplicates
+- Change data type to appropriate form to do further analysis
+- Conduct exploratory data analysis and visualization
+- Determine possible relationships between variables
+
+```{r}
+library(readr)
+library(dplyr)
+library(stringr)
+library(purrr)
+library(tidyr)
+library(ggplot2)
+```
+Set directory for the project
+
+```{r}
+setwd("~/Study/U.S./Cornell/Capstone Project/Learn to use Statistis Software /Dataquest/Guided Project/2011 data files online")
+```
+Import data from NYC department of education website into R
+
+```{r}
+combined <- read_csv('combined.csv')
+survey <- read_tsv("masterfile11_gened_final.txt")
+survey_d75 <- read_tsv("masterfile11_d75_final.txt")
+```
+Some notes about the datasets:
+<p> - combined: This dataset provides info about demographic characteristics and academic performance of the NYC schools. The first component includes (but not limited to) race, % students receiving free lunch, % students attending english as second language classes, % students receiving special education. The second component includes SAT and AP average scores. <br>
+- survey: This dataset provides info about perceptions of NYC school quality, regarding safety and respect, communication, engagement and academic expectations among parents, teachers and students from general education schools. <br>
+- survey_d75: This dataset provides info about perceptions of NYC school quality, regarding safety and respect, communication, engagement and academic expectations among parents, teachers and students from District 75 schools, which provide special education support for children with special needs such as learning or physical disabilities. </p>
+
+Necessary variables for our analysis: 
+<p> - Demographic characteristics variables <br>
+- Academic performance variables <br>
+- Perception about school quality variables </p>
+
+Common variable used to join tables (key): DBN: School identification code
+
+We are only interested in highschools, so we will filter the dataset to include only highschools, and also select necessary columns for our analysis
+```{r}
+survey_select <- survey %>% filter(schooltype == "High School")%>% select(dbn:aca_tot_11)
+survey_d75_select <- survey_d75 %>% select(dbn:aca_tot_11)
+names(survey_select)
+names(survey_d75_select)
+```
+Combine 3 datasets
+
+```{r}
+survey_combined <- bind_rows(survey_select, survey_d75_select)
+survey_combined <- survey_combined %>% rename(DBN = dbn, school_name = schoolname)
+combined <- left_join(combined, survey_combined, by = "DBN")
+```
+Investigate the question: "Do student, teacher, and parent perceptions of NYC school quality appear to be related to demographic and academic success metrics?" using correlation matrix.
+
+Also need to take into account missing values
+
+First create a correlation matrix to identify potential correlations between average SAT score and variables relating to perception
+```{r}
+colSums(is.na(combined))
+
+corr_matrix <- combined %>% select(avg_sat_score, saf_p_11:aca_tot_11) %>% cor(use = "pairwise.complete.obs")
+corr_tib <- corr_matrix %>% as_tibble(rownames = "variable")
+```
+
+Filter correlation that is strong enough (correlation coefficient > |0.25|)
+```{r}
+strong_corr_abs <- corr_tib %>% filter(avg_sat_score > 0.25 | avg_sat_score < -0.25)
+```
+Create a multiple scatterlot function
+```{r}
+create_scatter <- function(x, y){
+  ggplot(data = combined) +
+    aes_string(x = x, y = y) +
+    geom_point(alpha = 0.35) +
+    theme(panel.background = element_rect(fill = "white"))
+}
+x_var <- strong_corr_abs$variable[2:5]
+y_var <- "avg_sat_score"
+
+map2(x_var, y_var, create_scatter)
+```
+There are moderately weak positive associations between average SAT score and these perceptions: safety among teachers, students and total, academic expectation among students. 
+
+Second create a correlation matrix to identify potential correlations between demographic variables and variables relating to perception
+
+1. frl_percent (a demographic indicator: %students receiving free lunch) 
+```{r}
+corr_matrix_demo <- combined %>% select(frl_percent, saf_p_11:aca_tot_11) %>% cor(use = "pairwise.complete.obs")
+corr_tib_demo <- corr_matrix_demo %>% as_tibble(rownames = "variable")
+strong_corr_abs_demo <- corr_tib_demo %>% filter(frl_percent > 0.25 | frl_percent < -0.25)
+```
+The associations are very weak between frl_percentage and other perception variables
+
+2. ell_percent (% students attending english as second language class)
+
+```{r}
+corr_matrix_ell <- combined %>% select(ell_percent, saf_p_11:aca_tot_11) %>% cor(use = "pairwise.complete.obs")
+corr_tib_ell <- corr_matrix_ell %>% as_tibble(rownames = "variable")
+
+strong_corr_ell <- corr_tib_ell %>% filter(ell_percent > 0.25 | ell_percent < -0.25)
+```
+
+Very weak correlation between ell_percent and other perception variables
+
+3. sped_education (%students receivign special education)
+```{r}
+corr_matrix_sped <- combined %>% select(sped_percent, saf_p_11:aca_tot_11) %>% cor(use = "pairwise.complete.obs")
+
+corr_tib_sped <- corr_matrix_sped %>% as_tibble(rownames = "variable")
+
+strong_corr_spec <- corr_tib_sped %>% filter(sped_percent > 0.25 | sped_percent < -0.25)
+
+create_scatter <- function(x, y) {
+  ggplot(data = combined) +
+    aes_string(x = x, y = y) +
+    geom_point(alpha = 0.35) +
+    theme(panel.background = element_rect(fill = "white"))
+}
+x_var <- strong_corr_spec$variable[2:5]
+y_var <- "sped_percent"
+map2(x_var, y_var, create_scatter)
+```
+
+Negative associations between sped_percent and these perception variables: safety among all groups (teachers, parents, students, total), communication - engagement - academic expectations among students, and academic expectations among total.
+
+Investigate the question: "Do students, parents, teachers have similar perceptions of NYC school quality?" using boxplot.
+
+The four metrics of perceptions:
+<p> - Safety and respect <br>
+- Communication <br>
+- Engagement <br>
+- Academic expectations </p>
+
+Reshape data to longer form use pivot_longer
+```{r}
+combined_longer <- combined %>% 
+  pivot_longer(cols = c(saf_p_11:aca_tot_11), 
+               names_to = "survey_question",
+               values_to = "score")
+```
+Create new column to indicate which rows are perception of teachers/parents/students/total using str_sub
+
+```{r}
+combined_longer$response_type_sub <- str_sub(combined_longer$survey_question, 5, 6)
+
+unique(combined_longer$response_type_sub) #done
+
+combined_longer$response_type <- ifelse(combined_longer$response_type_sub == "p_", "parent",
+                                        ifelse(combined_longer$response_type_sub == "t_", "teacher",
+                                             ifelse(combined_longer$response_type_sub == "s_", "student", "total")))
+
+unique(combined_longer$response_type) #done
+```
+Create new column to indicate which rows are which of the 4 metrics
+
+```{r}
+unique(combined_longer$survey_question)
+combined_longer <- combined_longer %>% mutate(metric = str_sub(survey_question, 1, 3))
+combined_longer <- combined_longer %>% mutate(metric = ifelse(metric == "saf", "safety",
+                                                              ifelse(metric == "com", "communication", 
+                                                                     ifelse(metric == "eng", "engagement", "academic"))))
+
+unique(combined_longer$metric) #done
+```
+
+Create boxplot to see the difference between groups
+```{r}
+combined_longer %>% filter(response_type != "total") %>% 
+  ggplot() +
+  aes(x = metric, y = score, color = response_type) +
+  geom_boxplot()
+
+unique(combined_longer$response_type)
+```
+The following pattern is similar across the 4 metrics: parent has the highest score, followed by teachers and then students. Teachers have the widest score distribution range. Among the 4 metrics, academic expectations and safety have the higher average scores compared to communication and engagement scores.
+
+- Do student, parent and teacher perceptions of NYC school quality appear to be related to demographic and academic success metrics?
+- Do students, parents, teachers have similar perceptions of NYC school quality?
+
+In conclusion, student and teacher perceptions about safety, student perception about academic expectations appear to be positively related academic success metric. In contrast, student, parent and teacher perceptions of safety are negatively associated with the percentage of students receiving special education. This means, the higher the rate of students that need  attention for their learning or physical special needs in a school, the lower trust that students, teachers and parents put in that school safety. The same applies for the relationship between the student perception of communication, engagement and academic expectations and the special education rate.
+
+In terms of the different perception among students, teachers and parents of NYC school quality, generally parents rate NYC school quality highest, followed by teachers and finally students. Academic expectations and safety are the two aspects of school quality that are highly evaluated by all groups.  
+
+------------------End of project------------------
