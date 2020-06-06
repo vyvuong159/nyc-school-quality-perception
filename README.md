@@ -13,4 +13,4 @@ This project evaluates the relationship between perception of New York City scho
 * Determine possible relationships between variables
 
 ## Data source
-[NYC Open Data] (https://data.cityofnewyork.us/Education/2011-NYC-School-Survey/mnz3-dyi8)
+[NYC Open Data](https://data.cityofnewyork.us/Education/2011-NYC-School-Survey/mnz3-dyi8)
